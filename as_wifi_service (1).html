@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>
+  let correctPassword = 'awon';
+  let userInput = prompt('Please enter the password to access this site:');
+  if (userInput !== correctPassword) {
+    document.body.innerHTML = '<h1>Access Denied</h1>';
+    window.stop();
+  }
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AS WiFi Service - Recharge & Cycle Manager</title>
+    
+    <!-- PWA & Mobile Home Screen Meta Tags -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AS WiFi">
+    <meta name="application-name" content="AS WiFi Service">
+    
+    <!-- Embedded SVG App Icon for Home Screen -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232563eb'/%3E%3Cpath d='M50 72a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-18-13a26 26 0 0 1 36 0l-5 5a19 19 0 0 0-26 0l-5-5zm-12-12a43 43 0 0 1 60 0l-5 5a36 36 0 0 0-50 0l-5-5zm-12-12a60 60 0 0 1 84 0l-5 5a53 53 0 0 0-74 0l-5-5z' fill='%23ffffff'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232563eb'/%3E%3Cpath d='M50 72a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm-18-13a26 26 0 0 1 36 0l-5 5a19 19 0 0 0-26 0l-5-5zm-12-12a43 43 0 0 1 60 0l-5 5a36 36 0 0 0-50 0l-5-5zm-12-12a60 60 0 0 1 84 0l-5 5a53 53 0 0 0-74 0l-5-5z' fill='%23ffffff'/%3E%3C/svg%3E">
+
+    <!-- Web App Manifest (Data URI for Installability) -->
+    <link rel="manifest" id="pwa-manifest">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for crisp icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for horizontal filter pills */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Smooth modal transitions */
+        .modal-backdrop {
+            transition: opacity 0.2s ease-out;
+        }
+        .modal-panel {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased pb-24">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
+        <div class="max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-inner shadow-blue-400/30">
+                    <i class="fa-solid fa-wifi text-lg text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight leading-tight">AS WiFi Service</h1>
+                    <p class="text-[11px] text-slate-400 font-medium" id="header-date-display">Loading date...</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openBackupModal()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 transition text-xs font-semibold text-slate-200 flex items-center gap-1.5 border border-slate-700" title="Backup & Gmail Sync">
+                    <i class="fa-solid fa-cloud-arrow-up text-emerald-400"></i>
+                    <span class="hidden sm:inline">Backup</span>
+                </button>
+                <button onclick="openInstallModal()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 transition text-xs font-semibold text-slate-200 flex items-center gap-1.5 border border-slate-700" title="Add to Home Screen">
+                    <i class="fa-solid fa-mobile-screen-button text-blue-400"></i>
+                    <span class="hidden sm:inline">Install App</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Single-Page Container -->
+    <main class="max-w-3xl mx-auto px-4 pt-4 space-y-5">
+
+        <!-- 4-Card Live Summary Dashboard -->
+        <section aria-label="Dashboard Summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <!-- Total Customers -->
+            <div onclick="setFilter('all')" class="cursor-pointer bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200/80 hover:border-blue-300 transition active:scale-[0.99]">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-semibold text-slate-500">Total Customers</span>
+                    <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-users"></i>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-slate-900" id="stat-total-customers">0</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Active list</div>
+            </div>
+
+            <!-- Needs Recharge Today / Due -->
+            <div onclick="setFilter('due')" class="cursor-pointer bg-white p-3.5 rounded-2xl shadow-sm border border-amber-200/90 hover:border-amber-400 transition active:scale-[0.99] relative overflow-hidden">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-semibold text-amber-700">Needs Recharge</span>
+                    <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-bell"></i>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-amber-600" id="stat-due-today">0</div>
+                <div class="text-[11px] text-amber-700/80 mt-0.5 font-medium">Current pack expired</div>
+            </div>
+
+            <!-- Recharged Today -->
+            <div onclick="setFilter('today')" class="cursor-pointer bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200/80 hover:border-emerald-300 transition active:scale-[0.99]">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-semibold text-slate-500">Recharged Today</span>
+                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-bolt"></i>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-emerald-600" id="stat-recharged-today">0</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Updated today</div>
+            </div>
+
+            <!-- Total Days Owed -->
+            <div onclick="setFilter('pending')" class="cursor-pointer bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200/80 hover:border-indigo-300 transition active:scale-[0.99]">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-semibold text-slate-500">Days Owed</span>
+                    <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-indigo-600" id="stat-total-pending-days">0</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Total days remaining</div>
+            </div>
+        </section>
+
+        <!-- Search & Primary Add Action Bar -->
+        <section class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
+            <div class="flex flex-col sm:flex-row gap-2.5">
+                <!-- Search Box -->
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        oninput="renderCustomers()" 
+                        placeholder="Search by Name, Book No, or App ID..." 
+                        class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                    >
+                    <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Add New Customer Button -->
+                <button onclick="openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 flex items-center justify-center gap-2 transition shrink-0">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Customer</span>
+                </button>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+                <button onclick="setFilter('all')" id="filter-all" class="filter-pill px-3.5 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap bg-slate-900 text-white">
+                    All (<span id="count-all">0</span>)
+                </button>
+                <button onclick="setFilter('due')" id="filter-due" class="filter-pill px-3.5 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    <i class="fa-solid fa-clock text-amber-500 mr-1"></i>Needs Top-Up (<span id="count-due">0</span>)
+                </button>
+                <button onclick="setFilter('pending')" id="filter-pending" class="filter-pill px-3.5 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    Has Days Left (<span id="count-pending">0</span>)
+                </button>
+                <button onclick="setFilter('today')" id="filter-today" class="filter-pill px-3.5 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    Recharged Today (<span id="count-today">0</span>)
+                </button>
+                <button onclick="setFilter('completed')" id="filter-completed" class="filter-pill px-3.5 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    Full 30/30 (<span id="count-completed">0</span>)
+                </button>
+            </div>
+        </section>
+
+        <!-- Customer List Container -->
+        <section id="customer-list" class="space-y-3">
+            <!-- Dynamic Customer Cards Injected Here -->
+        </section>
+
+        <!-- Empty State (Shown when no customers match) -->
+        <div id="empty-state" class="hidden bg-white rounded-2xl p-8 text-center border border-slate-200/80 shadow-sm">
+            <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-router"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800" id="empty-state-title">No customers added yet</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto" id="empty-state-desc">Tap "Add Customer" to record a customer's payment date, Book No, App ID, and track their 30-day WiFi recharge balance.</p>
+            <button onclick="openCustomerModal()" class="mt-4 px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition">
+                + Add First Customer
+            </button>
+        </div>
+
+        <!-- Footer Info & Removed History Trigger -->
+        <footer class="pt-2 pb-6 text-center space-y-2">
+            <div class="flex items-center justify-center gap-4 text-xs text-slate-500">
+                <button onclick="openArchiveModal()" class="hover:text-slate-800 underline underline-offset-2 font-medium">
+                    <i class="fa-solid fa-box-archive mr-1"></i>Completed/Removed History (<span id="archive-count">0</span>)
+                </button>
+                <span>•</span>
+                <span class="text-emerald-600 font-medium"><i class="fa-solid fa-shield-check mr-1"></i>Auto-Saved Offline</span>
+            </div>
+            <p class="text-[11px] text-slate-400">AS WiFi Service • Permanent Local Storage Enabled</p>
+        </footer>
+    </main>
+
+    <!-- Floating Mobile Quick-Add Button -->
+    <button onclick="openCustomerModal()" aria-label="Add Customer" class="sm:hidden fixed bottom-5 right-5 z-20 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/40 flex items-center justify-center text-xl active:scale-90 transition">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 1: ADD / EDIT CUSTOMER                                          -->
+    <!-- ===================================================================== -->
+    <div id="customer-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-xs p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-user-plus" id="modal-header-icon"></i>
+                    </div>
+                    <h2 class="text-base font-bold" id="customer-modal-title">Add New Customer</h2>
+                </div>
+                <button onclick="closeCustomerModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="customer-form" onsubmit="saveCustomer(event)" class="p-5 overflow-y-auto space-y-4">
+                <input type="hidden" id="edit-customer-id">
+
+                <!-- Customer Name -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Customer Name <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-name" required placeholder="e.g., Rahim Uddin" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                </div>
+
+                <!-- Book No & App ID Row -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-book text-amber-600 mr-1"></i>Book No. (Khata) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="field-book-no" required placeholder="e.g., 104" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-mobile-button text-blue-600 mr-1"></i>App ID / No. <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="field-app-id" required placeholder="e.g., 25" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                    </div>
+                </div>
+
+                <!-- Payment Date & Last Recharge Date -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Bill Payment Date <span class="text-red-500">*</span></label>
+                        <input type="date" id="field-payment-date" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Total Cycle Days</label>
+                        <input type="number" id="field-total-days" min="1" max="32" value="30" required oninput="updateModalCalculation()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                    </div>
+                </div>
+
+                <!-- Days Recharged Section -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-700">Total Days Recharged (1–32)</label>
+                        <span class="text-[11px] font-semibold text-blue-600">Type or tap pills</span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <input type="number" id="field-recharged-days" min="0" max="32" value="0" required oninput="updateModalCalculation()" class="w-24 px-3 py-2 bg-white border border-slate-300 rounded-xl text-lg font-extrabold text-center text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        
+                        <!-- Quick Set / Add Buttons -->
+                        <div class="flex flex-wrap gap-1.5 flex-1">
+                            <button type="button" onclick="setModalRechargedDays(0)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100">0d</button>
+                            <button type="button" onclick="setModalRechargedDays(1)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:border-blue-300">1d</button>
+                            <button type="button" onclick="setModalRechargedDays(7)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:border-blue-300">7d</button>
+                            <button type="button" onclick="setModalRechargedDays(10)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:border-blue-300">10d</button>
+                            <button type="button" onclick="setModalRechargedDays(15)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:border-blue-300">15d</button>
+                            <button type="button" onclick="setModalRechargedDays(30)" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700 hover:bg-emerald-100">30d</button>
+                        </div>
+                    </div>
+
+                    <!-- Auto-Calculated Result Box -->
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-200/80">
+                        <span class="text-xs font-semibold text-slate-600">Customer Will Still Get (Remaining):</span>
+                        <span id="modal-remaining-preview" class="px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-sm font-extrabold">30 Days</span>
+                    </div>
+                </div>
+
+                <!-- Optional Last Chunk Tracking (for automatic expiry alerts) -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Last Recharged On</label>
+                        <input type="date" id="field-last-recharge-date" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Last Pack Days Given</label>
+                        <input type="number" id="field-last-chunk-days" min="0" max="32" value="0" placeholder="e.g., 7" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="pt-2 flex gap-2.5">
+                    <button type="button" onclick="closeCustomerModal()" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-2 w-2/3 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/20 transition">
+                        Save Customer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 2: QUICK TOP-UP / GIVE RECHARGE                                 -->
+    <!-- ===================================================================== -->
+    <div id="recharge-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-xs p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 bg-emerald-600 text-white flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-bolt"></i> Give WiFi Recharge
+                    </h3>
+                    <p class="text-xs text-emerald-100 mt-0.5" id="recharge-customer-subtitle">Customer Name</p>
+                </div>
+                <button onclick="closeRechargeModal()" class="w-8 h-8 rounded-full bg-emerald-700/70 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="recharge-customer-id">
+
+                <!-- Current Balance Summary -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center">
+                    <div>
+                        <div class="text-[11px] text-slate-500 font-medium">Total Cycle</div>
+                        <div class="text-base font-extrabold text-slate-800" id="rc-total">30d</div>
+                    </div>
+                    <div class="border-x border-slate-200">
+                        <div class="text-[11px] text-slate-500 font-medium">Given So Far</div>
+                        <div class="text-base font-extrabold text-blue-600" id="rc-given">0d</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-500 font-medium">Remaining</div>
+                        <div class="text-base font-extrabold text-amber-600" id="rc-remaining">30d</div>
+                    </div>
+                </div>
+
+                <!-- Quick Select Pills (1 to 32) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">How many days are you recharging right now?</label>
+                    <div class="grid grid-cols-4 gap-2 mb-3">
+                        <button type="button" onclick="selectRechargeChunk(1)" class="py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-extrabold text-sm transition">+1 Day</button>
+                        <button type="button" onclick="selectRechargeChunk(7)" class="py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-extrabold text-sm transition">+7 Days</button>
+                        <button type="button" onclick="selectRechargeChunk(10)" class="py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-extrabold text-sm transition">+10 Days</button>
+                        <button type="button" onclick="selectRechargeChunk(15)" class="py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-extrabold text-sm transition">+15 Days</button>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="flex-1">
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Or type days (1–32):</label>
+                            <input type="number" id="recharge-add-days" min="1" max="32" value="7" oninput="updateRechargePreview()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Recharge Date:</label>
+                            <input type="date" id="recharge-date-input" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Preview After Recharge -->
+                <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-emerald-900">New Remaining Balance:</span>
+                    <span class="text-sm font-extrabold text-emerald-700" id="rc-new-remaining-preview">23 Days Left</span>
+                </div>
+
+                <div class="flex gap-2.5 pt-1">
+                    <button type="button" onclick="closeRechargeModal()" class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm">Cancel</button>
+                    <button type="button" onclick="confirmAddRecharge()" class="w-2/3 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/20">
+                        Confirm Recharge
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 3: CONFIRM REMOVE / COMPLETE CUSTOMER                           -->
+    <!-- ===================================================================== -->
+    <div id="remove-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 text-center space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-user-check"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Remove from Active List?</h3>
+                <p class="text-xs text-slate-500 mt-1" id="remove-modal-desc">
+                    Are you sure you want to remove this customer? You can still view or restore them from the History archive later.
+                </p>
+            </div>
+            <input type="hidden" id="remove-customer-id">
+            <div class="flex gap-2.5">
+                <button onclick="closeRemoveModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">Cancel</button>
+                <button onclick="confirmRemoveCustomer()" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs">Yes, Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 4: BACKUP & GMAIL SYNC                                          -->
+    <!-- ===================================================================== -->
+    <div id="backup-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-xs p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-emerald-400"></i>
+                    <h3 class="text-base font-bold">Data Backup & Gmail Sync</h3>
+                </div>
+                <button onclick="closeBackupModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-3.5 text-xs text-blue-900 leading-relaxed">
+                    <strong>Permanent Storage Active:</strong> Your data is saved automatically on this device. Use the options below to send a copy to your <strong>Gmail</strong> or download a backup file.
+                </div>
+
+                <!-- Gmail Backup Button -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">1. Save Backup to Gmail</label>
+                    <button onclick="backupToGmail()" class="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>Send Backup Report to Gmail</span>
+                    </button>
+                    <p class="text-[11px] text-slate-500">Opens Gmail with your complete customer list & restore code ready to email to yourself.</p>
+                </div>
+
+                <!-- Download Files -->
+                <div class="space-y-2 pt-2 border-t border-slate-100">
+                    <label class="block text-xs font-bold text-slate-700">2. Download Backup File</label>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button onclick="downloadJSONBackup()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-code text-emerald-400"></i>
+                            <span>Backup (.JSON)</span>
+                        </button>
+                        <button onclick="downloadCSVBackup()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Excel Sheet (.CSV)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Restore Data -->
+                <div class="space-y-2 pt-2 border-t border-slate-100">
+                    <label class="block text-xs font-bold text-slate-700">3. Restore Previous Data</label>
+                    <label class="w-full py-2.5 px-4 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 text-slate-700 font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer transition">
+                        <i class="fa-solid fa-upload text-blue-600"></i>
+                        <span>Select Backup (.JSON) File to Restore</span>
+                        <input type="file" accept=".json" onchange="restoreFromJSONFile(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 5: ADD TO HOME SCREEN GUIDE                                     -->
+    <!-- ===================================================================== -->
+    <div id="install-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-xs p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 bg-blue-600 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    <h3 class="text-base font-bold">Add to Home Screen</h3>
+                </div>
+                <button onclick="closeInstallModal()" class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 text-xs text-slate-600 leading-relaxed">
+                <p class="text-sm font-semibold text-slate-800">Use "AS WiFi Service" like a permanent mobile app:</p>
+                
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-brands fa-android text-emerald-600 text-base"></i> On Android (Chrome):
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-600">
+                        <li>Tap the <strong>Three Dots (⋮)</strong> at the top-right corner of Chrome.</li>
+                        <li>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</li>
+                        <li>Tap <strong>Add</strong> — the AS WiFi icon will stay permanently on your phone screen!</li>
+                    </ol>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-brands fa-apple text-slate-800 text-base"></i> On iPhone (Safari):
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-600">
+                        <li>Tap the <strong>Share icon</strong> at the bottom of Safari.</li>
+                        <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+                    </ol>
+                </div>
+
+                <button onclick="closeInstallModal()" class="w-full py-3 rounded-xl bg-slate-900 text-white font-bold text-sm">Got It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 6: ARCHIVED / REMOVED CUSTOMERS HISTORY                         -->
+    <!-- ===================================================================== -->
+    <div id="archive-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-xs p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+            <div class="px-5 py-4 bg-slate-800 text-white flex items-center justify-between">
+                <h3 class="text-base font-bold"><i class="fa-solid fa-box-archive mr-2 text-slate-400"></i>Removed / Completed History</h3>
+                <button onclick="closeArchiveModal()" class="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="archive-list" class="p-4 overflow-y-auto space-y-2.5 flex-1">
+                <!-- Archived items populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transition-all">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message">Action completed</span>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- APPLICATION LOGIC (JAVASCRIPT)                                        -->
+    <!-- ===================================================================== -->
+    <script>
+        // Storage Keys
+        const STORAGE_KEY = 'as_wifi_service_customers_v1';
+        const ARCHIVE_KEY = 'as_wifi_service_archive_v1';
+
+        // Application State
+        let customers = [];
+        let archivedCustomers = [];
+        let currentFilter = 'all';
+
+        // Utility: Get Today's Date in YYYY-MM-DD (local timezone safe)
+        function getTodayISO() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset();
+            const local = new Date(now.getTime() - (offset * 60 * 1000));
+            return local.toISOString().split('T')[0];
+        }
+
+        // Utility: Format YYYY-MM-DD to readable DD-MM-YYYY
+        function formatDisplayDate(isoDate) {
+            if (!isoDate) return 'N/A';
+            const parts = isoDate.split('-');
+            if (parts.length !== 3) return isoDate;
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        // Utility: Calculate days difference between two ISO dates
+        function daysBetween(startISO, endISO) {
+            if (!startISO || !endISO) return 0;
+            const start = new Date(startISO + 'T00:00:00');
+            const end = new Date(endISO + 'T00:00:00');
+            const diffTime = end - start;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // Utility: Add days to an ISO date string
+        function addDaysToISO(isoDate, daysToAdd) {
+            if (!isoDate) return '';
+            const date = new Date(isoDate + 'T00:00:00');
+            date.setDate(date.getDate() + Number(daysToAdd));
+            const offset = date.getTimezoneOffset();
+            const local = new Date(date.getTime() - (offset * 60 * 1000));
+            return local.toISOString().split('T')[0];
+        }
+
+        // Check if a customer needs top-up today (current chunk expired AND still has remaining days owed)
+        function isCustomerDueForTopUp(customer) {
+            const remaining = Math.max(0, customer.totalDays - customer.rechargedDays);
+            if (remaining <= 0) return false;
+
+            // If 0 days recharged so far, they immediately need their first recharge!
+            if (customer.rechargedDays === 0) return true;
+
+            // If we have lastRechargeDate and lastChunkDays, check if that chunk has expired by today
+            if (customer.lastRechargeDate && customer.lastChunkDays > 0) {
+                const today = getTodayISO();
+                const expiryDate = addDaysToISO(customer.lastRechargeDate, customer.lastChunkDays);
+                return today >= expiryDate;
+            }
+
+            return false;
+        }
+
+        // Initialize App on Load
+        window.onload = function () {
+            setupPWAManifest();
+            displayHeaderDate();
+            loadDataFromStorage();
+            renderCustomers();
+        };
+
+        // Generate Dynamic PWA Manifest for Add-to-Home-Screen
+        function setupPWAManifest() {
+            const manifest = {
+                name: "AS WiFi Service",
+                short_name: "AS WiFi",
+                start_url: ".",
+                display: "standalone",
+                background_color: "#f1f5f9",
+                theme_color: "#0f172a",
+                description: "Customer 30-day WiFi recharge and cycle tracker for AS WiFi Service"
+            };
+            const stringManifest = JSON.stringify(manifest);
+            const blob = new Blob([stringManifest], { type: 'application/json' });
+            const manifestURL = URL.createObjectURL(blob);
+            document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
+        }
+
+        // Display Formatted Current Date in Header
+        function displayHeaderDate() {
+            const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+            document.getElementById('header-date-display').textContent = new Date().toLocaleDateString('en-GB', options);
+        }
+
+        // Load Data Permanently from LocalStorage
+        function loadDataFromStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                const savedArchive = localStorage.getItem(ARCHIVE_KEY);
+                customers = saved ? JSON.parse(saved) : [];
+                archivedCustomers = savedArchive ? JSON.parse(savedArchive) : [];
+            } catch (err) {
+                console.error('Failed to load storage:', err);
+                customers = [];
+                archivedCustomers = [];
+            }
+        }
+
+        // Save Data Permanently to LocalStorage
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(customers));
+                localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archivedCustomers));
+            } catch (err) {
+                showToast('Warning: Storage space full!');
+            }
+        }
+
+        // Show Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2800);
+        }
+
+        // Update Dashboard & Filter Counters
+        function updateDashboardStats() {
+            const today = getTodayISO();
+            let dueCount = 0;
+            let todayCount = 0;
+            let pendingCustomerCount = 0;
+            let completedCount = 0;
+            let totalPendingDays = 0;
+
+            customers.forEach(c => {
+                const remaining = Math.max(0, c.totalDays - c.rechargedDays);
+                totalPendingDays += remaining;
+
+                if (remaining > 0) pendingCustomerCount++;
+                else completedCount++;
+
+                if (isCustomerDueForTopUp(c)) dueCount++;
+                if (c.lastRechargeDate === today && c.rechargedDays > 0) todayCount++;
+            });
+
+            // Top Stat Cards
+            document.getElementById('stat-total-customers').textContent = customers.length;
+            document.getElementById('stat-due-today').textContent = dueCount;
+            document.getElementById('stat-recharged-today').textContent = todayCount;
+            document.getElementById('stat-total-pending-days').textContent = totalPendingDays + 'd';
+
+            // Filter Pill Counts
+            document.getElementById('count-all').textContent = customers.length;
+            document.getElementById('count-due').textContent = dueCount;
+            document.getElementById('count-pending').textContent = pendingCustomerCount;
+            document.getElementById('count-today').textContent = todayCount;
+            document.getElementById('count-completed').textContent = completedCount;
+            document.getElementById('archive-count').textContent = archivedCustomers.length;
+        }
+
+        // Set Active Filter Tab
+        function setFilter(filterName) {
+            currentFilter = filterName;
+            document.querySelectorAll('.filter-pill').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            const activeBtn = document.getElementById(`filter-${filterName}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-100', 'text-slate-600');
+                activeBtn.classList.add('bg-slate-900', 'text-white');
+            }
+            renderCustomers();
+        }
+
+        // Clear Search Input
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            renderCustomers();
+        }
+
+        // Render Customer Cards
+        function renderCustomers() {
+            updateDashboardStats();
+
+            const listEl = document.getElementById('customer-list');
+            const emptyEl = document.getElementById('empty-state');
+            const searchInput = document.getElementById('search-input');
+            const clearBtn = document.getElementById('clear-search-btn');
+            const query = searchInput.value.trim().toLowerCase();
+            const today = getTodayISO();
+
+            clearBtn.classList.toggle('hidden', query.length === 0);
+
+            // Filter customers
+            let filtered = customers.filter(c => {
+                const remaining = Math.max(0, c.totalDays - c.rechargedDays);
+                const matchesSearch = !query ||
+                    c.name.toLowerCase().includes(query) ||
+                    String(c.bookNo).toLowerCase().includes(query) ||
+                    String(c.appId).toLowerCase().includes(query);
+
+                if (!matchesSearch) return false;
+
+                if (currentFilter === 'due') return isCustomerDueForTopUp(c);
+                if (currentFilter === 'pending') return remaining > 0;
+                if (currentFilter === 'today') return c.lastRechargeDate === today && c.rechargedDays > 0;
+                if (currentFilter === 'completed') return remaining === 0;
+                return true;
+            });
+
+            // Sort: Due customers first, then customers with remaining days, then newest
+            filtered.sort((a, b) => {
+                const dueA = isCustomerDueForTopUp(a) ? 1 : 0;
+                const dueB = isCustomerDueForTopUp(b) ? 1 : 0;
+                if (dueB !== dueA) return dueB - dueA;
+                return b.updatedAt - a.updatedAt;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                if (customers.length > 0) {
+                    document.getElementById('empty-state-title').textContent = 'No matching customers found';
+                    document.getElementById('empty-state-desc').textContent = 'Try clearing your search or switching filter tabs.';
+                } else {
+                    document.getElementById('empty-state-title').textContent = 'No customers added yet';
+                    document.getElementById('empty-state-desc').textContent = 'Tap "Add Customer" to record a customer\'s payment date, Book No, App ID, and track their 30-day WiFi recharge balance.';
+                }
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+
+            listEl.innerHTML = filtered.map(c => {
+                const remaining = Math.max(0, c.totalDays - c.rechargedDays);
+                const percent = Math.min(100, Math.round((c.rechargedDays / c.totalDays) * 100));
+                const isDue = isCustomerDueForTopUp(c);
+                const isComplete = remaining === 0;
+
+                // Next due date info
+                let nextDueBadge = '';
+                if (isComplete) {
+                    nextDueBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-check-circle mr-1"></i>30/30 Complete</span>`;
+                } else if (isDue) {
+                    nextDueBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 animate-pulse"><i class="fa-solid fa-bell mr-1"></i>Needs Top-Up Now</span>`;
+                } else if (c.lastRechargeDate && c.lastChunkDays > 0) {
+                    const nextDate = addDaysToISO(c.lastRechargeDate, c.lastChunkDays);
+                    nextDueBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700">Next Top-Up: ${formatDisplayDate(nextDate)}</span>`;
+                }
+
+                const cardBorderClass = isDue
+                    ? 'border-amber-300 ring-1 ring-amber-200/70'
+                    : isComplete
+                        ? 'border-emerald-200'
+                        : 'border-slate-200/90';
+
+                const progressColor = isComplete
+                    ? 'bg-emerald-500'
+                    : isDue
+                        ? 'bg-amber-500'
+                        : 'bg-blue-600';
+
+                return `
+                <article class="bg-white rounded-2xl p-4 shadow-sm border ${cardBorderClass} transition hover:shadow-md">
+                    <!-- Top Row: Name, Book/App Badges & Status -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold" title="Physical Book Number">
+                                    <i class="fa-solid fa-book text-[10px]"></i> Book #${escapeHTML(c.bookNo)}
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold" title="WiFi App ID">
+                                    <i class="fa-solid fa-mobile-screen text-[10px]"></i> App #${escapeHTML(c.appId)}
+                                </span>
+                            </div>
+                            <h3 class="text-base font-extrabold text-slate-900 leading-snug">${escapeHTML(c.name)}</h3>
+                        </div>
+                        <div class="text-right shrink-0">
+                            ${nextDueBadge}
+                        </div>
+                    </div>
+
+                    <!-- Dates Row -->
+                    <div class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                        <span><i class="fa-regular fa-calendar-check text-slate-400 mr-1"></i>Paid: <strong class="text-slate-700">${formatDisplayDate(c.paymentDate)}</strong></span>
+                        ${c.lastRechargeDate && c.rechargedDays > 0 ? `<span><i class="fa-solid fa-bolt text-emerald-500 mr-1"></i>Last Recharged: <strong class="text-slate-700">${formatDisplayDate(c.lastRechargeDate)}</strong> (${c.lastChunkDays || c.rechargedDays}d)</span>` : ''}
+                    </div>
+
+                    <!-- Progress & Remaining Balance Box -->
+                    <div class="mt-3 bg-slate-50 rounded-xl p-3 border border-slate-200/70">
+                        <div class="flex items-center justify-between text-xs mb-1.5">
+                            <span class="font-semibold text-slate-600">Given: <strong class="text-slate-900">${c.rechargedDays}</strong> / ${c.totalDays} Days</span>
+                            <span class="font-extrabold ${remaining > 0 ? 'text-amber-700' : 'text-emerald-700'} text-sm">
+                                ${remaining > 0 ? `Remaining: ${remaining} Days` : 'All Days Recharged'}
+                            </span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full ${progressColor} rounded-full transition-all duration-300" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons Footer -->
+                    <div class="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <!-- Primary Recharge Action -->
+                        ${remaining > 0 ? `
+                        <button onclick="openRechargeModal('${c.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Give Recharge (+Days)</span>
+                        </button>
+                        ` : `
+                        <button onclick="renewCycle('${c.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>Start New 30-Day Cycle</span>
+                        </button>
+                        `}
+
+                        <!-- Edit & Remove Actions -->
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="openCustomerModal('${c.id}')" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition" title="Edit Customer">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="openRemoveModal('${c.id}')" class="p-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold transition" title="Remove Customer">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                `;
+            }).join('');
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // =====================================================================
+        // ADD / EDIT CUSTOMER MODAL LOGIC
+        // =====================================================================
+        function openCustomerModal(customerId = null) {
+            const modal = document.getElementById('customer-modal');
+            const form = document.getElementById('customer-form');
+            form.reset();
+
+            const today = getTodayISO();
+
+            if (customerId) {
+                const c = customers.find(item => item.id === customerId);
+                if (!c) return;
+                document.getElementById('customer-modal-title').textContent = 'Edit Customer Details';
+                document.getElementById('modal-header-icon').className = 'fa-solid fa-user-pen';
+                document.getElementById('edit-customer-id').value = c.id;
+                document.getElementById('field-name').value = c.name;
+                document.getElementById('field-book-no').value = c.bookNo;
+                document.getElementById('field-app-id').value = c.appId;
+                document.getElementById('field-payment-date').value = c.paymentDate;
+                document.getElementById('field-total-days').value = c.totalDays;
+                document.getElementById('field-recharged-days').value = c.rechargedDays;
+                document.getElementById('field-last-recharge-date').value = c.lastRechargeDate || '';
+                document.getElementById('field-last-chunk-days').value = c.lastChunkDays || 0;
+            } else {
+                document.getElementById('customer-modal-title').textContent = 'Add New Customer';
+                document.getElementById('modal-header-icon').className = 'fa-solid fa-user-plus';
+                document.getElementById('edit-customer-id').value = '';
+                document.getElementById('field-payment-date').value = today;
+                document.getElementById('field-total-days').value = 30;
+                document.getElementById('field-recharged-days').value = 0;
+                document.getElementById('field-last-recharge-date').value = today;
+                document.getElementById('field-last-chunk-days').value = 0;
+            }
+
+            updateModalCalculation();
+            modal.classList.remove('hidden');
+        }
+
+        function closeCustomerModal() {
+            document.getElementById('customer-modal').classList.add('hidden');
+        }
+
+        function setModalRechargedDays(days) {
+            document.getElementById('field-recharged-days').value = days;
+            document.getElementById('field-last-chunk-days').value = days;
+            if (days > 0 && !document.getElementById('field-last-recharge-date').value) {
+                document.getElementById('field-last-recharge-date').value = getTodayISO();
+            }
+            updateModalCalculation();
+        }
+
+        function updateModalCalculation() {
+            const total = parseInt(document.getElementById('field-total-days').value) || 30;
+            const recharged = parseInt(document.getElementById('field-recharged-days').value) || 0;
+            const remaining = Math.max(0, total - recharged);
+            const previewEl = document.getElementById('modal-remaining-preview');
+
+            if (remaining === 0) {
+                previewEl.textContent = '0 Days (Complete)';
+                previewEl.className = 'px-3 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-sm font-extrabold';
+            } else {
+                previewEl.textContent = `${remaining} Days Left`;
+                previewEl.className = 'px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-sm font-extrabold';
+            }
+        }
+
+        function saveCustomer(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('edit-customer-id').value;
+            const name = document.getElementById('field-name').value.trim();
+            const bookNo = document.getElementById('field-book-no').value.trim();
+            const appId = document.getElementById('field-app-id').value.trim();
+            const paymentDate = document.getElementById('field-payment-date').value;
+            const totalDays = Math.min(32, Math.max(1, parseInt(document.getElementById('field-total-days').value) || 30));
+            const rechargedDays = Math.min(totalDays, Math.max(0, parseInt(document.getElementById('field-recharged-days').value) || 0));
+            const lastRechargeDate = document.getElementById('field-last-recharge-date').value || (rechargedDays > 0 ? getTodayISO() : '');
+            const lastChunkDays = parseInt(document.getElementById('field-last-chunk-days').value) || rechargedDays;
+
+            if (id) {
+                const index = customers.findIndex(c => c.id === id);
+                if (index !== -1) {
+                    customers[index] = {
+                        ...customers[index],
+                        name,
+                        bookNo,
+                        appId,
+                        paymentDate,
+                        totalDays,
+                        rechargedDays,
+                        lastRechargeDate,
+                        lastChunkDays,
+                        updatedAt: Date.now()
+                    };
+                    showToast('Customer updated!');
+                }
+            } else {
+                const newCustomer = {
+                    id: 'cust_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                    name,
+                    bookNo,
+                    appId,
+                    paymentDate,
+                    totalDays,
+                    rechargedDays,
+                    lastRechargeDate,
+                    lastChunkDays,
+                    createdAt: Date.now(),
+                    updatedAt: Date.now()
+                };
+                customers.unshift(newCustomer);
+                showToast('New customer added!');
+            }
+
+            saveDataToStorage();
+            closeCustomerModal();
+            renderCustomers();
+        }
+
+        // =====================================================================
+        // QUICK TOP-UP / RECHARGE MODAL LOGIC
+        // =====================================================================
+        function openRechargeModal(customerId) {
+            const c = customers.find(item => item.id === customerId);
+            if (!c) return;
+
+            const remaining = Math.max(0, c.totalDays - c.rechargedDays);
+            document.getElementById('recharge-customer-id').value = c.id;
+            document.getElementById('recharge-customer-subtitle').textContent = `${c.name} (Book #${c.bookNo} • App #${c.appId})`;
+            document.getElementById('rc-total').textContent = `${c.totalDays}d`;
+            document.getElementById('rc-given').textContent = `${c.rechargedDays}d`;
+            document.getElementById('rc-remaining').textContent = `${remaining}d`;
+
+            // Default suggested chunk: up to 7 days or remaining if less than 7
+            const suggested = Math.min(7, remaining);
+            document.getElementById('recharge-add-days').value = suggested;
+            document.getElementById('recharge-date-input').value = getTodayISO();
+
+            updateRechargePreview();
+            document.getElementById('recharge-modal').classList.remove('hidden');
+        }
+
+        function closeRechargeModal() {
+            document.getElementById('recharge-modal').classList.add('hidden');
+        }
+
+        function selectRechargeChunk(days) {
+            const id = document.getElementById('recharge-customer-id').value;
+            const c = customers.find(item => item.id === id);
+            if (!c) return;
+            const remaining = Math.max(0, c.totalDays - c.rechargedDays);
+            document.getElementById('recharge-add-days').value = Math.min(days, remaining > 0 ? remaining : 32);
+            updateRechargePreview();
+        }
+
+        function updateRechargePreview() {
+            const id = document.getElementById('recharge-customer-id').value;
+            const c = customers.find(item => item.id === id);
+            if (!c) return;
+
+            const addDays = parseInt(document.getElementById('recharge-add-days').value) || 0;
+            const newGiven = Math.min(c.totalDays, c.rechargedDays + addDays);
+            const newRemaining = Math.max(0, c.totalDays - newGiven);
+
+            document.getElementById('rc-new-remaining-preview').textContent =
+                newRemaining === 0 ? '0 Days Left (Full Cycle Complete!)' : `${newRemaining} Days Left`;
+        }
+
+        function confirmAddRecharge() {
+            const id = document.getElementById('recharge-customer-id').value;
+            const index = customers.findIndex(item => item.id === id);
+            if (index === -1) return;
+
+            const addDays = parseInt(document.getElementById('recharge-add-days').value) || 0;
+            if (addDays <= 0) {
+                showToast('Please enter at least 1 day');
+                return;
+            }
+
+            const rechargeDate = document.getElementById('recharge-date-input').value || getTodayISO();
+            const c = customers[index];
+
+            c.rechargedDays = Math.min(c.totalDays, c.rechargedDays + addDays);
+            c.lastRechargeDate = rechargeDate;
+            c.lastChunkDays = addDays;
+            c.updatedAt = Date.now();
+
+            saveDataToStorage();
+            closeRechargeModal();
+            renderCustomers();
+            showToast(`Added +${addDays} days to ${c.name}!`);
+        }
+
+        // Start a fresh 30-day cycle when a completed customer pays again
+        function renewCycle(customerId) {
+            const index = customers.findIndex(c => c.id === customerId);
+            if (index === -1) return;
+
+            customers[index].paymentDate = getTodayISO();
+            customers[index].rechargedDays = 0;
+            customers[index].lastRechargeDate = '';
+            customers[index].lastChunkDays = 0;
+            customers[index].updatedAt = Date.now();
+
+            saveDataToStorage();
+            renderCustomers();
+            showToast(`New 30-day cycle started for ${customers[index].name}!`);
+        }
+
+        // =====================================================================
+        // REMOVE / ARCHIVE CUSTOMER LOGIC
+        // =====================================================================
+        function openRemoveModal(customerId) {
+            const c = customers.find(item => item.id === customerId);
+            if (!c) return;
+            document.getElementById('remove-customer-id').value = c.id;
+            document.getElementById('remove-modal-desc').textContent =
+                `Remove "${c.name}" (Book #${c.bookNo}, App #${c.appId}) from your active list? You can restore them anytime from History.`;
+            document.getElementById('remove-modal').classList.remove('hidden');
+        }
+
+        function closeRemoveModal() {
+            document.getElementById('remove-modal').classList.add('hidden');
+        }
+
+        function confirmRemoveCustomer() {
+            const id = document.getElementById('remove-customer-id').value;
+            const index = customers.findIndex(c => c.id === id);
+            if (index === -1) return;
+
+            const [removed] = customers.splice(index, 1);
+            removed.removedAt = getTodayISO();
+            archivedCustomers.unshift(removed);
+
+            saveDataToStorage();
+            closeRemoveModal();
+            renderCustomers();
+            showToast(`${removed.name} moved to History`);
+        }
+
+        // Archive Modal Functions
+        function openArchiveModal() {
+            renderArchiveList();
+            document.getElementById('archive-modal').classList.remove('hidden');
+        }
+
+        function closeArchiveModal() {
+            document.getElementById('archive-modal').classList.add('hidden');
+        }
+
+        function renderArchiveList() {
+            const container = document.getElementById('archive-list');
+            if (archivedCustomers.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">No removed customers in history.</p>`;
+                return;
+            }
+
+            container.innerHTML = archivedCustomers.map(c => `
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xs font-bold text-slate-800">${escapeHTML(c.name)}</div>
+                        <div class="text-[11px] text-slate-500">Book #${escapeHTML(c.bookNo)} • App #${escapeHTML(c.appId)} • Given ${c.rechargedDays}/${c.totalDays}d</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="restoreCustomer('${c.id}')" class="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white text-[11px] font-bold hover:bg-blue-700">Restore</button>
+                        <button onclick="deleteArchivedForever('${c.id}')" class="p-1.5 rounded-lg text-red-500 hover:bg-red-50 text-xs" title="Delete Forever"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function restoreCustomer(id) {
+            const index = archivedCustomers.findIndex(c => c.id === id);
+            if (index === -1) return;
+            const [restored] = archivedCustomers.splice(index, 1);
+            restored.updatedAt = Date.now();
+            customers.unshift(restored);
+            saveDataToStorage();
+            renderArchiveList();
+            renderCustomers();
+            showToast(`${restored.name} restored to active list!`);
+        }
+
+        function deleteArchivedForever(id) {
+            archivedCustomers = archivedCustomers.filter(c => c.id !== id);
+            saveDataToStorage();
+            renderArchiveList();
+            updateDashboardStats();
+        }
+
+        // =====================================================================
+        // BACKUP, GMAIL SYNC & RESTORE LOGIC
+        // =====================================================================
+        function openBackupModal() {
+            document.getElementById('backup-modal').classList.remove('hidden');
+        }
+
+        function closeBackupModal() {
+            document.getElementById('backup-modal').classList.add('hidden');
+        }
+
+        function openInstallModal() {
+            document.getElementById('install-modal').classList.remove('hidden');
+        }
+
+        function closeInstallModal() {
+            document.getElementById('install-modal').classList.add('hidden');
+        }
+
+        // Format readable report + JSON backup and open Gmail
+        function backupToGmail() {
+            const today = formatDisplayDate(getTodayISO());
+            let summaryLines = [
+                `AS WiFi Service - Customer Backup (${today})`,
+                `Total Active Customers: ${customers.length}`,
+                `----------------------------------------`
+            ];
+
+            customers.forEach((c, idx) => {
+                const rem = Math.max(0, c.totalDays - c.rechargedDays);
+                summaryLines.push(
+                    `${idx + 1}. ${c.name} | Book: #${c.bookNo} | App: #${c.appId} | Paid: ${formatDisplayDate(c.paymentDate)} | Given: ${c.rechargedDays}/${c.totalDays}d | Left: ${rem}d`
+                );
+            });
+
+            summaryLines.push(`----------------------------------------`);
+            summaryLines.push(`Backup Data Code (Keep safe):`);
+            summaryLines.push(JSON.stringify({ customers, archivedCustomers }));
+
+            const subject = encodeURIComponent(`AS WiFi Service Backup - ${today}`);
+            const body = encodeURIComponent(summaryLines.join('\n'));
+
+            // Open Gmail compose window directly
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`;
+            window.open(gmailUrl, '_blank');
+            showToast('Opening Gmail backup...');
+        }
+
+        // Download JSON Backup File
+        function downloadJSONBackup() {
+            const payload = {
+                app: 'AS WiFi Service',
+                exportedAt: new Date().toISOString(),
+                customers,
+                archivedCustomers
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `AS-WiFi-Backup-${getTodayISO()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Backup file downloaded!');
+        }
+
+        // Download CSV Spreadsheet
+        function downloadCSVBackup() {
+            const headers = ['Customer Name', 'Book No', 'App ID', 'Payment Date', 'Total Days', 'Recharged Days', 'Remaining Days', 'Last Recharge Date'];
+            const rows = customers.map(c => {
+                const rem = Math.max(0, c.totalDays - c.rechargedDays);
+                return [
+                    `"${c.name.replace(/"/g, '""')}"`,
+                    `"${c.bookNo}"`,
+                    `"${c.appId}"`,
+                    formatDisplayDate(c.paymentDate),
+                    c.totalDays,
+                    c.rechargedDays,
+                    rem,
+                    formatDisplayDate(c.lastRechargeDate)
+                ].join(',');
+            });
+
+            const csvContent = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `AS-WiFi-Customers-${getTodayISO()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Excel CSV downloaded!');
+        }
+
+        // Restore from JSON Backup File
+        function restoreFromJSONFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed.customers)) {
+                        customers = parsed.customers;
+                        archivedCustomers = Array.isArray(parsed.archivedCustomers) ? parsed.archivedCustomers : [];
+                        saveDataToStorage();
+                        renderCustomers();
+                        closeBackupModal();
+                        showToast(`Restored ${customers.length} customers successfully!`);
+                    } else {
+                        showToast('Invalid backup file format.');
+                    }
+                } catch (err) {
+                    showToast('Could not read backup file.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>
